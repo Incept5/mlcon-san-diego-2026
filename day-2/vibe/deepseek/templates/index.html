@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDPR Article Browser</title>
+<style>
+  /* ── reset & base ─────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1a2744;
+    --navy-light: #243656;
+    --gold: #c4a34f;
+    --gold-light: #f5e6c8;
+    --gray-50: #f8f9fa;
+    --gray-100: #f1f3f5;
+    --gray-200: #e9ecef;
+    --gray-300: #dee2e6;
+    --gray-500: #6c757d;
+    --gray-700: #495057;
+    --gray-900: #212529;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.10);
+    --radius: 8px;
+    --sidebar-w: 420px;
+  }
+
+  html { font-size: 15px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                 Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+    color: var(--gray-900);
+    background: var(--gray-100);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── header ───────────────────────────────────────────────────────── */
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 0 2rem;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem 0 .5rem;
+  }
+  .header-brand {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--white);
+  }
+  .header-brand span { color: var(--gold); }
+  .header-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .25rem 0 .75rem;
+  }
+  .header-bottom h1 {
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--gray-300);
+  }
+  .header-bottom h1 em { color: var(--gold); font-style: normal; }
+  .header-bottom .badge {
+    background: var(--navy-light);
+    color: var(--gold-light);
+    font-size: .75rem;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+
+  /* ── layout ───────────────────────────────────────────────────────── */
+  main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── sidebar ──────────────────────────────────────────────────────── */
+  aside {
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    background: var(--white);
+    border-right: 1px solid var(--gray-300);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  aside .sidebar-header {
+    padding: 1.25rem 1.5rem .75rem;
+    border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+  }
+  aside .sidebar-header h2 {
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  aside .sidebar-header p {
+    font-size: .8rem;
+    color: var(--gray-500);
+    margin-top: 4px;
+  }
+  #article-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: .5rem 0;
+  }
+  #article-list::-webkit-scrollbar { width: 6px; }
+  #article-list::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+
+  .article-card {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: background .15s;
+    border-left: 3px solid transparent;
+  }
+  .article-card:hover { background: var(--gray-50); }
+  .article-card.active {
+    background: var(--gold-light);
+    border-left-color: var(--gold);
+  }
+  .article-card .art-num {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 4px;
+  }
+  .article-card .art-summary {
+    font-size: .85rem;
+    line-height: 1.5;
+    color: var(--gray-700);
+  }
+
+  /* ── detail panel ─────────────────────────────────────────────────── */
+  #detail {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2.5rem 3rem;
+    background: var(--gray-50);
+  }
+  #detail::-webkit-scrollbar { width: 8px; }
+  #detail::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
+
+  .detail-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: var(--gray-500);
+  }
+  .detail-placeholder .icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+  }
+  .detail-placeholder h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: .5rem;
+  }
+  .detail-placeholder p { font-size: .9rem; max-width: 340px; line-height: 1.5; }
+
+  .detail-content h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: .5rem;
+  }
+  .detail-content .article-badge {
+    display: inline-block;
+    background: var(--navy);
+    color: var(--gold);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 1.25rem;
+  }
+  .detail-content .summary-box {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .detail-content .summary-box h4 {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--gray-500);
+    margin-bottom: .5rem;
+  }
+  .detail-content .summary-box p {
+    font-size: .95rem;
+    line-height: 1.6;
+    color: var(--gray-900);
+  }
+  .detail-content .full-text {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.75rem;
+    box-shadow: var(--shadow-sm);
+    font-size: .9rem;
+    line-height: 1.8;
+    color: var(--gray-900);
+    white-space: pre-line;
+  }
+  .detail-content .full-text h4 {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--gray-500);
+    margin-bottom: 1rem;
+    padding-bottom: .75rem;
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .loading {
+    display: flex; align-items: center; gap: .5rem;
+    color: var(--gray-500); font-size: .9rem;
+    padding: 2rem;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--gray-300);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── footer ───────────────────────────────────────────────────────── */
+  footer {
+    background: var(--white);
+    border-top: 1px solid var(--gray-200);
+    padding: 0 2rem;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    font-size: .75rem;
+    color: var(--gray-500);
+    flex-shrink: 0;
+  }
+
+  /* ── responsive ───────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    :root { --sidebar-w: 100%; }
+    main { flex-direction: column; }
+    aside {
+      width: 100%; min-width: 0;
+      max-height: 40vh;
+      border-right: none;
+      border-bottom: 1px solid var(--gray-300);
+    }
+    #detail { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-brand">Deep<span>Seek</span></div>
+  </div>
+  <div class="header-bottom">
+    <h1>EU <em>GDPR</em> Article Browser</h1>
+    <span class="badge" id="article-count">— articles</span>
+  </div>
+</header>
+
+<main>
+  <!-- ── sidebar: article list ─────────────────────────────────────── -->
+  <aside>
+    <div class="sidebar-header">
+      <h2>Articles</h2>
+      <p>Select an article to view its summary and full text</p>
+    </div>
+    <div id="article-list">
+      <div class="loading"><div class="spinner"></div> Loading articles…</div>
+    </div>
+  </aside>
+
+  <!-- ── detail panel ──────────────────────────────────────────────── -->
+  <section id="detail">
+    <div class="detail-placeholder">
+      <div class="icon">📜</div>
+      <h3>Select an Article</h3>
+      <p>Choose an article from the sidebar to read its plain-English summary
+         and the full legal text.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  General Data Protection Regulation (EU) 2016/679 &mdash;
+  Scraped from gdpr-info.eu
+</footer>
+
+<script>
+  // ── state ────────────────────────────────────────────────────────────
+  let articles = [];
+  let activeId = null;
+
+  // ── API helpers ──────────────────────────────────────────────────────
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    return res.json();
+  }
+
+  // ── render sidebar ───────────────────────────────────────────────────
+  function renderSidebar(items) {
+    const list = document.getElementById('article-list');
+    list.innerHTML = items.map(a => `
+      <div class="article-card" data-id="${a.article}" onclick="selectArticle('${a.article}')">
+        <div class="art-num">${a.article}</div>
+        <div class="art-summary">${escapeHTML(a.summary)}</div>
+      </div>
+    `).join('');
+    document.getElementById('article-count').textContent =
+      `${items.length} article${items.length !== 1 ? 's' : ''}`;
+  }
+
+  // ── select & render detail ───────────────────────────────────────────
+  async function selectArticle(id) {
+    // Highlight
+    document.querySelectorAll('.article-card').forEach(c => c.classList.remove('active'));
+    const card = document.querySelector(`[data-id="${id}"]`);
+    if (card) card.classList.add('active');
+    activeId = id;
+
+    // Show loading
+    const detail = document.getElementById('detail');
+    detail.innerHTML = '<div class="loading"><div class="spinner"></div> Loading article…</div>';
+
+    try {
+      const art = await fetchJSON(`/api/articles/${encodeURIComponent(id)}`);
+      renderDetail(art);
+    } catch (err) {
+      detail.innerHTML = `<div class="detail-placeholder">
+        <div class="icon">⚠️</div><h3>Failed to load</h3><p>${escapeHTML(err.message)}</p></div>`;
+    }
+  }
+
+  function renderDetail(art) {
+    const detail = document.getElementById('detail');
+    detail.innerHTML = `
+      <div class="detail-content">
+        <div class="article-badge">${escapeHTML(art.article)}</div>
+        <h2>${escapeHTML(art.article)} GDPR</h2>
+
+        <div class="summary-box">
+          <h4>Plain-English Summary</h4>
+          <p>${escapeHTML(art.summary)}</p>
+        </div>
+
+        <div class="full-text">
+          <h4>Full Legal Text</h4>
+          ${escapeHTML(art.full_article)}
+        </div>
+      </div>`;
+  }
+
+  function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ── init ─────────────────────────────────────────────────────────────
+  (async function init() {
+    try {
+      articles = await fetchJSON('/api/articles');
+      renderSidebar(articles);
+    } catch (err) {
+      document.getElementById('article-list').innerHTML =
+        `<div class="loading">⚠️ Failed to load: ${escapeHTML(err.message)}</div>`;
+    }
+  })();
+</script>
+
+</body>
+</html>

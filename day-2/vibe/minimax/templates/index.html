@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GDPR Article Browser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0a2540;
+      --navy-2: #0f3460;
+      --gold: #c9a227;
+      --gold-soft: #e6c75a;
+      --ink: #1c2733;
+      --ink-soft: #51607a;
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --line: #e5ebf2;
+      --line-strong: #cdd6e1;
+      --accent: #1c64f2;
+      --accent-soft: #e6efff;
+      --radius: 14px;
+      --shadow-sm: 0 1px 2px rgba(10, 37, 64, 0.04), 0 1px 1px rgba(10, 37, 64, 0.03);
+      --shadow-md: 0 6px 24px rgba(10, 37, 64, 0.08), 0 2px 6px rgba(10, 37, 64, 0.04);
+      --shadow-lg: 0 24px 48px rgba(10, 37, 64, 0.18);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Brand header ----------------------------------------------------- */
+    .brand-header {
+      background:
+        linear-gradient(90deg, #0a2540 0%, #0f3460 50%, #1a4480 100%);
+      color: #fff;
+      padding: 36px 24px 44px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 3px solid var(--gold);
+    }
+    .brand-header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 50% 0%, rgba(201, 162, 39, 0.22), transparent 70%),
+        radial-gradient(ellipse 40% 60% at 10% 100%, rgba(28, 100, 242, 0.18), transparent 70%),
+        radial-gradient(ellipse 40% 60% at 90% 100%, rgba(201, 162, 39, 0.10), transparent 70%);
+      pointer-events: none;
+    }
+    .brand-header .brand-inner {
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .brand-header h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0;
+      background: linear-gradient(180deg, #ffffff 0%, #c9a227 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.05;
+      text-shadow: 0 2px 30px rgba(201, 162, 39, 0.15);
+    }
+    .brand-header .brand-tagline {
+      margin-top: 10px;
+      font-size: 13px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+    }
+    .brand-header .brand-divider {
+      margin: 16px auto 0;
+      width: 80px;
+      height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+      opacity: 0.85;
+    }
+
+    /* Header ----------------------------------------------------------- */
+    .site-header {
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201, 162, 39, 0.18), transparent 60%),
+        linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+      color: #fff;
+      padding: 48px 24px 64px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .site-header .inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold-soft);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 600;
+      margin: 0 0 12px;
+      letter-spacing: -0.01em;
+    }
+    .lede {
+      max-width: 680px;
+      color: rgba(255,255,255,0.78);
+      font-size: 16px;
+      margin: 0;
+    }
+    .meta-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+    }
+    .meta-row strong { color: #fff; font-weight: 600; }
+
+    /* Search & toolbar ------------------------------------------------- */
+    .toolbar {
+      max-width: 1100px;
+      margin: -28px auto 0;
+      padding: 0 24px;
+    }
+    .toolbar-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 14px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .search {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+    .search input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fafbfd;
+      border-radius: 10px;
+      padding: 11px 14px 11px 40px;
+      font: inherit;
+      color: var(--ink);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .search input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+      background: #fff;
+    }
+    .search svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-soft);
+    }
+    .count-pill {
+      font-size: 13px;
+      color: var(--ink-soft);
+      background: #f0f4fa;
+      padding: 7px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .count-pill strong { color: var(--navy); }
+
+    /* Article list ----------------------------------------------------- */
+    main {
+      max-width: 1100px;
+      margin: 32px auto 80px;
+      padding: 0 24px;
+    }
+    .article-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .article-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+      overflow: hidden;
+    }
+    .article-card:hover {
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-md);
+    }
+    .article-card.is-open {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+    }
+    .article-summary {
+      cursor: pointer;
+      padding: 18px 22px;
+      display: grid;
+      grid-template-columns: 84px 1fr auto;
+      gap: 18px;
+      align-items: center;
+      user-select: none;
+    }
+    .article-badge {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--navy);
+      background: linear-gradient(180deg, #fdfaf0 0%, #f5e9c2 100%);
+      border: 1px solid #e9d484;
+      border-radius: 10px;
+      padding: 8px 6px;
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+    .article-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .article-text .summary {
+      color: var(--ink);
+      font-size: 15.5px;
+    }
+    .article-text .label {
+      font-size: 12px;
+      color: var(--ink-soft);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .chev {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--ink-soft);
+      background: #f1f5fa;
+      transition: transform 0.2s, background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .article-card.is-open .chev {
+      transform: rotate(180deg);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .article-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .article-card.is-open .article-body {
+      max-height: 4000px;
+    }
+    .article-body-inner {
+      padding: 0 22px 22px 124px;
+      border-top: 1px dashed var(--line);
+      margin-top: 0;
+      padding-top: 18px;
+    }
+    .article-body-inner h3 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--navy);
+      margin: 0 0 12px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .article-body-inner p {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.75;
+      color: #2a3344;
+      margin: 0 0 14px;
+    }
+    .article-body-inner p:last-child { margin-bottom: 0; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--ink-soft);
+    }
+
+    /* Footer ----------------------------------------------------------- */
+    footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 24px 48px;
+      color: var(--ink-soft);
+      font-size: 13px;
+      text-align: center;
+    }
+    footer .stars { color: var(--gold); letter-spacing: 0.3em; }
+
+    /* Responsive ------------------------------------------------------- */
+    @media (max-width: 720px) {
+      .article-summary { grid-template-columns: 60px 1fr auto; gap: 12px; padding: 14px 16px; }
+      .article-badge { font-size: 14px; padding: 6px 4px; }
+      .article-body-inner { padding: 16px 16px 18px; }
+      .toolbar { padding: 0 16px; }
+      main { padding: 0 16px; }
+      .site-header { padding: 36px 20px 56px; }
+      .brand-header { padding: 28px 16px 32px; }
+      .brand-header .brand-tagline { letter-spacing: 0.22em; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="brand-header">
+  <div class="brand-inner">
+    <h2>MiniMax M3</h2>
+    <div class="brand-divider"></div>
+    <div class="brand-tagline">AI-Powered Document Intelligence</div>
+  </div>
+</header>
+
+<header class="site-header">
+  <div class="inner">
+    <div class="eyebrow">EU · Regulation 2016/679</div>
+    <h1>General Data Protection Regulation</h1>
+    <p class="lede">A readable, searchable index of the GDPR's articles. Each entry pairs a one-sentence plain-English summary — generated locally by <code>qwen3.5:4b</code> — with the full article text scraped from <a style="color: var(--gold-soft)" href="https://gdpr-info.eu" target="_blank" rel="noopener">gdpr-info.eu</a>.</p>
+    <div class="meta-row">
+      <span><strong>{{ count }}</strong> articles indexed</span>
+      <span>Source: gdpr-info.eu</span>
+      <span>Model: qwen3.5:4b (Ollama)</span>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-card">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="search" type="search" placeholder="Search summaries or article numbers…" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="count-pill"><strong id="visible-count">{{ count }}</strong> shown</div>
+  </div>
+</div>
+
+<main>
+  {% if articles %}
+  <ul class="article-list" id="article-list">
+    {% for a in articles %}
+    <li class="article-card" data-article="{{ a.article }}" data-summary="{{ a.summary | lower }}">
+      <div class="article-summary" role="button" tabindex="0" aria-expanded="false">
+        <div class="article-badge">{{ a.article }}</div>
+        <div class="article-text">
+          <span class="label">Summary</span>
+          <span class="summary">{{ a.summary }}</span>
+        </div>
+        <div class="chev" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="article-body">
+        <div class="article-body-inner">
+          <h3>Full text — {{ a.article }}</h3>
+          {% set paras = a.full_article.split('\n') %}
+          {% for p in paras %}
+            {% if p.strip() %}<p>{{ p.strip() }}</p>{% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <div id="empty" class="empty-state" hidden>No articles match your search.</div>
+  {% else %}
+  <div class="empty-state">
+    <p>No articles loaded yet. Run <code>python gdpr_scraper.py</code> first.</p>
+  </div>
+  {% endif %}
+</main>
+
+<footer>
+  <div class="stars">★ ★ ★ ★ ★</div>
+  <p>Built for MLCon San Diego 2026 · data scraped from <a href="https://gdpr-info.eu" target="_blank" rel="noopener">gdpr-info.eu</a>, summaries by local Ollama</p>
+</footer>
+
+<script>
+  // ----- Accordion ---------------------------------------------------
+  document.querySelectorAll('.article-summary').forEach((header) => {
+    const card = header.closest('.article-card');
+    header.addEventListener('click', () => toggle(card));
+    header.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle(card);
+      }
+    });
+  });
+  function toggle(card) {
+    const open = card.classList.toggle('is-open');
+    card.querySelector('.article-summary').setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      // smooth-scroll the card into view so the user sees what they expanded
+      setTimeout(() => card.scrollIntoView({behavior: 'smooth', block: 'start'}), 50);
+    }
+  }
+
+  // ----- Live filter -------------------------------------------------
+  const search = document.getElementById('search');
+  const list = document.getElementById('article-list');
+  const empty = document.getElementById('empty');
+  const visible = document.getElementById('visible-count');
+  if (search && list) {
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      let shown = 0;
+      list.querySelectorAll('.article-card').forEach((card) => {
+        const haystack = (card.dataset.article + ' ' + card.dataset.summary).toLowerCase();
+        const match = !q || haystack.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) shown++;
+      });
+      visible.textContent = shown;
+      empty.hidden = shown !== 0;
+    });
+  }
+</script>
+
+</body>
+</html>
